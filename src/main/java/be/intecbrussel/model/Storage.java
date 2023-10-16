@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
 @Entity
 public class Storage {
 
@@ -17,6 +16,9 @@ public class Storage {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "storage")
     private List<Product> products;
 
+    @OneToOne(mappedBy = "storage", cascade = CascadeType.REMOVE)
+    private Key key;
+
     protected Storage() {}
 
     public Storage(String name) {
@@ -24,7 +26,9 @@ public class Storage {
         this.products = new ArrayList<>();
     }
 
-    public long getId() {return id;}
+    public long getId() {
+        return id;
+    }
 
     public String getName() {
         return name;
@@ -47,7 +51,15 @@ public class Storage {
         }
     }
 
-    private void addProduct(Product product){
+    public Key getKey() {
+        return key;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
+    }
+
+    public void addProduct(Product product){
         this.products.add(product);
         product.setStorage(this);
     }

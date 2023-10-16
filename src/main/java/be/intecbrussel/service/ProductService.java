@@ -3,9 +3,7 @@ package be.intecbrussel.service;
 import be.intecbrussel.model.Product;
 import be.intecbrussel.repository.ProductRepository;
 
-
 public class ProductService {
-
 
     private final ProductRepository productRepository = new ProductRepository();
 

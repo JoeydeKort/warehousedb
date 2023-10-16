@@ -1,19 +1,21 @@
 package be.intecbrussel.service;
 
+import be.intecbrussel.model.Key;
 import be.intecbrussel.model.Product;
 import be.intecbrussel.model.Storage;
 import be.intecbrussel.repository.StorageRepository;
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 public class StorageService {
 
-    private StorageRepository storageRepository = new StorageRepository();
+    private final StorageRepository storageRepository = new StorageRepository();
+    private final ProductService productService = Service.getProductService();
 
     public void addStorage(Storage storage) {
-        ProductService productService = Service.getProductService();
         for (Product product : storage.getProducts()) {
+            System.out.println(product);
             if (product.getId() == 0) {
                 productService.addProduct(product);
             } else {
@@ -21,21 +23,24 @@ public class StorageService {
             }
         }
 
-        if (storage.getId() == 0 ) {
+        if (storage.getId() == 0)
             storageRepository.createStorage(storage);
-        } else {
+        else
             storageRepository.updateStorage(storage);
-        }
-
     }
 
     public Storage getStorage(long id) {
-        return storageRepository.readStorage(id);
+        Storage storage = storageRepository.readStorage(id);
+        if (storage == null) {
+            throw new RuntimeException("Storage with ID " + id + " not found.");
+        }
+        return storage;
     }
 
+
     public void updateStorage(Storage storage) {
-        ProductService productService = Service.getProductService();
         for (Product product : storage.getProducts()) {
+            System.out.println(product);
             if (product.getId() == 0) {
                 productService.addProduct(product);
             } else {
@@ -43,14 +48,24 @@ public class StorageService {
             }
         }
 
-        if (storage.getId() == 0 ) {
+        if (storage.getId() == 0)
             storageRepository.createStorage(storage);
-        } else {
+        else
             storageRepository.updateStorage(storage);
-        }
     }
 
     public void deleteStorage(long id) {
+        KeyService keyService = Service.getKeyService();
+        Storage storage = getStorage(id);
+        Key key = storage.getKey();
+        keyService.deleteKey(key.getId());
+
+        List<Product> products = storage.getProducts();
+
+        for (Product product : products) {
+            productService.deleteProduct(product.getId());
+        }
+
         storageRepository.deleteStorage(id);
     }
 
@@ -60,6 +75,5 @@ public class StorageService {
         storage.getProducts().remove(product);
         updateStorage(storage);
     }
-
 
 }

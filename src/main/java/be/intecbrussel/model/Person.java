@@ -1,12 +1,10 @@
 package be.intecbrussel.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 
 @Entity
 public class Person {
@@ -14,15 +12,20 @@ public class Person {
     @Id
     private String name;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "PersonKeyOwnership",
+            joinColumns = @JoinColumn(name = "person_name", referencedColumnName = "name"),
+            inverseJoinColumns = @JoinColumn(name = "key_id"))
     private List<Key> keys;
 
-    protected Person() {}
 
-    public Person(String name, List<Key> keys) {
+    public Person(String name) {
         this.name = name;
-        this.keys = keys;
+        this.keys = new ArrayList<>();
     }
+
+    protected Person(){}
 
     public String getName() {
         return name;
@@ -38,6 +41,26 @@ public class Person {
 
     public void setKeys(List<Key> keys) {
         this.keys = keys;
+        for (Key key : keys) {
+            if (!key.getPersons().contains(this)) {
+                key.addPerson(this);
+            }
+        }
+    }
+
+    public void addKey(Key key) {
+        if (!keys.contains(key)) {
+            keys.add(key);
+            key.addPerson(this);
+        }
+    }
+
+    public void addKey(Key... keys) {
+        if (keys != null) {
+            for (Key key : keys) {
+                addKey(key);
+            }
+        }
     }
 
     @Override
@@ -53,6 +76,7 @@ public class Person {
         return Objects.hash(name, keys);
     }
 
+
     @Override
     public String toString() {
         return "Person{" +
@@ -62,3 +86,4 @@ public class Person {
     }
 
 }
+

@@ -1,55 +1,62 @@
 package be.intecbrussel;
 
+import be.intecbrussel.model.Key;
+import be.intecbrussel.model.Person;
 import be.intecbrussel.model.Product;
 import be.intecbrussel.model.Storage;
-import be.intecbrussel.service.ProductService;
-import be.intecbrussel.service.Service;
-import be.intecbrussel.service.StorageService;
+import be.intecbrussel.service.*;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 
 public class App {
 
     public static void main(String[] args) {
 
-        //m1SimpleEntity();
-        m2StorageEntity();
-    }
-
-    private static void m1SimpleEntity() {
-
         ProductService productService = Service.getProductService();
-        Product apple = new Product("apple", 0.75);
-        productService.addProduct(apple);
-
-        Product product = productService.getProduct(1);
-        System.out.println(product);
-
-        apple.setName("Red apple");
-        productService.updateProduct(apple);
-
-        Product product1 = productService.getProduct(1);
-        System.out.println(product1);
-
-        productService.deleteProduct(1);
-
-        Product product2 = productService.getProduct(1);
-        System.out.println(product2);
-
-    }
-
-    private static void m2StorageEntity() {
-
+        PersonService personService = Service.getPersonService();
         StorageService storageService = Service.getStorageService();
+        KeyService keyService = Service.getKeyService();
 
-        Storage storage = new Storage("Fruits");
-        storageService.addStorage(storage);
+        Storage storage1 = new Storage("Fruits");
+        Storage storage2 = new Storage("Cars");
+        storageService.addStorage(storage1);
+        storageService.addStorage(storage2);
 
-        Product product01 = new Product("Banana", 0.55);
-        Product product02 = new Product("apple", 0.65);
-        Product product03 = new Product("Melon", 1.35);
+        Product product1 = new Product("Apple", 0.75);
+        Product product2 = new Product("Banana", 0.69);
+        Product product3 = new Product("Grapefruit", 1200);
+        Product product4 = new Product("Ferrari", 100_000);
+        storage1.addProduct(product1, product2, product3);
 
-        storage.addProduct(product01, product02, product03);
-        storageService.updateStorage(storage);
+        productService.addProduct(product4);
+        storage2.addProduct(product4);
+        storageService.updateStorage(storage2);
+
+        Key key1 = new Key(storage1);
+        Key key2 = new Key(storage2);
+        keyService.addKey(key1);
+        keyService.addKey(key2);
+
+        Person john = new Person("John");
+        Person jane = new Person("Jane");
+        personService.addPerson(john);
+        personService.addPerson(jane);
+
+        john.addKey(key1);
+        jane.addKey(key1);
+        jane.addKey(key2);
+        personService.updatePerson(john);
+        personService.updatePerson(jane);
+
+//        storageService.deleteStorage(1);
+        keyService.deleteKey(1);
+//        productService.deleteProduct(1);
+//        personService.deletePerson("John");
 
     }
 
